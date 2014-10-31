@@ -65,6 +65,7 @@ dbGetQuery(db.bball, "select * from BASEBALL where League='NL'")
 ## select all the National League teams, some columns selected
 dbGetQuery(db.bball, "select League, Team, RSW from BASEBALL where League='NL'")
 
+
 ## SQL logical operators: AND, OR, NOT
 ## which American League teams has regular season wins less than 810?
 dbGetQuery(db.bball, "select League, Division, Team, RSW, RSL from BASEBALL where League='AL' and RSW<810")
