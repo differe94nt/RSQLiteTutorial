@@ -1,0 +1,137 @@
+---
+title: "Introduction to RSQLite"
+author: "Yang Yang"
+date: "November 3, 2014"
+output: 
+  ioslides_presentation:
+    css: custom.css
+---
+```{r setup, echo=F,include=F}
+knitr::opts_chunk$set(comment = NA, highlight=T)
+```
+
+## What is SQL
+
+
+- Structured Query Language
+- Relational Database Management System (RDBMS)
+
+
+## SQLite vs SQL
+
+- "Lite" verison of SQL
+- Supports most of the SQL syntax
+- Only allow single writer at a time
+- No user management
+- Best for mobile applications, testing
+- **NOT** for big-scale data
+- **NOT** for enterprises due to security reasons
+
+
+## Basic Definitions
+
+- Table: collection of related data entries
+- Field: column names, eqv to header in `R`
+- Column
+- Row
+- Supported data types: **NULL**, **INTEGER**, **TEXT**, **BLOB**
+
+## RSQLite: Installation
+```{r,eval=FALSE}
+install.packages(RSQLite, dependencies = T)
+```
+
+- The source includes SQLite engine
+- Depends on DBI package
+
+
+## RSQLite: Create a table
+```{r,warning=FALSE,message=FALSE,comment = NA,results='hide'}
+library(RSQLite)
+db = dbConnect(SQLite(), dbname="Test.sqlite")
+dbSendQuery(conn = db,
+       "CREATE TABLE BASEBALL
+       (Team_ID INTEGER,
+         Team_Name TEXT,
+        Leage TEXT,
+        Payroll REAL,
+        Wins INTEGER)")
+```
+
+
+## RSQLite: Enter data manually:
+```{r,cache=F,results='hide',comment = NA}
+dbSendQuery(conn = db,
+         "INSERT INTO BASEBALL
+         VALUES (1, 'Twins', 'American League', '54641175','1020')")
+dbSendQuery(conn = db,
+         "INSERT INTO BASEBALL
+         VALUES (2, 'Giants', 'American League', '82288960','1033')")
+dbSendQuery(conn = db,
+         "INSERT INTO BASEBALL
+         VALUES (3, 'Royals', 'National League', '49816557','803')")
+```
+
+
+## RSQLite: Check the content of the table
+```{r,comment = NA}
+## The tables in the database
+dbListTables(db) 
+## The columns in a table
+dbListFields(db, "BASEBALL")   
+## The data in a table
+head(dbReadTable(db, "BASEBALL"))
+```
+
+```{r,echo=FALSE,include=FALSE}
+dbRemoveTable(db, "BASEBALL")
+```
+
+
+
+## RSQLite: Read data from csv file
+
+- Windows and UNIX uses different End of Line
+- Always use `read.csv` to read csv into `R` dataframe first
+```{r,comment=F,message=F,warning=F,tidy=F,results='hide',eval=F}
+bball = read.csv('bball.csv')
+db.bball = dbConnect(SQLite(), dbname="bball.sqlite")
+dbWriteTable(conn = db.bball, name = "BASEBALL", bball, overwrite=T,
+             row.names=FALSE)
+```
+```{r,echo=FALSE,include=F}
+db.bball = dbConnect(SQLite(), dbname="bball.sqlite")
+```
+
+```{r,comment=F,message=F,warning=F,tidy=TRUE}
+tmp=dbReadTable(db.bball, "BASEBALL")
+```
+```{r,echo=F}
+rownames(tmp)=NULL
+```
+```{r,echo=F}
+tmp
+```
+
+
+## RSQLite: make queries
+- A query: which teams are in National League?
+- Select all columns
+```{r}
+dbGetQuery(db.bball, "select * from BASEBALL where League='NL'")[1:2,]
+```
+- Select some columns
+```{r,tidy=FALSE}
+dbGetQuery(db.bball, "select League, Team, RSW from BASEBALL
+           where League='NL'")[1:2,]
+```
+
+## RSQLite: more complicated queries
+- SQL logical operators: AND, OR, NOT
+- which American League teams has regular season wins less than 810?
+```{r,tidy=FALSE}
+dbGetQuery(db.bball, "select * from BASEBALL where League='AL' and RSW<810")
+
+```
+
+
