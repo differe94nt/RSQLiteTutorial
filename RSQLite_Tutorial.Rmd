@@ -5,6 +5,7 @@ date: "November 3, 2014"
 output: 
   ioslides_presentation:
     css: custom.css
+    widescreen: true
 ---
 ```{r setup, echo=F,include=F}
 knitr::opts_chunk$set(comment = NA, highlight=T)
@@ -133,5 +134,11 @@ dbGetQuery(db.bball, "select League, Team, RSW from BASEBALL
 dbGetQuery(db.bball, "select * from BASEBALL where League='AL' and RSW<810")
 
 ```
+
+## 
+
+Questions?
+
+Download all the code from [GitHub](https://github.com/ysquared2/RSQLiteTutorial) 
 
 
